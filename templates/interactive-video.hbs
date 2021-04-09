@@ -1,0 +1,34 @@
+<div class="component__inner interactive-video__inner">
+  {{> component this}} 
+
+  <div class="interactive-video__main">
+
+    <div class="interactive-video__stages">
+    {{#each _items}}
+        <div class="interactive-video__widget"></div>
+    {{/each}}
+    </div> 
+    
+    <div class="interactive-video__controls " >
+      <button class="btn js-prev-stage">
+         <span class="icon icon-controls-up "></span>
+      </button>
+
+      <div class="interactive-video__progress-dots " >
+         {{#each _items}}
+            <div class="interactive-video__progress-dot"></div>
+        {{/each}}
+      </div>
+
+      <button class="btn js-next-stage">
+         <span class="icon icon-controls-down "></span>
+      </button>
+   </div>
+
+  </div>
+
+  
+  
+  {{!-- {{#if body}} {{/if}} --}}
+
+</div>
