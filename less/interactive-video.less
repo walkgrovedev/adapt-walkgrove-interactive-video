@@ -7,10 +7,55 @@
         display: flex;
         position: relative;
         padding: 1rem;
+        flex-direction: column;
+    }
+
+    &__content {
+        // position: absolute;
+        // top:0;
+        // left:0;
+        width: 100%;
+        height: auto;
+
+        padding: 1rem;
+        max-width: 90%;
+    }
+
+    &__bg-image {
+        opacity: 1;
+
+        position: absolute;
+        top:0;
+        left:0;
+        
+        &.is-hidden {
+            opacity: 0;
+        }
+    }
+
+    &__widget {
+        
     }
 
     &__stages {
         width: 90%;
+        height: 100%;
+        position: relative;
+
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__step-bg {
+        position: absolute;
+        top:0;
+        left:0;
+        width: 100%;
+        height: auto;
+
+        display: inline-block;
+        
+        // opacity: 0;
     }
 
     &__controls {
@@ -26,6 +71,10 @@
 
         .btn {
             flex: 0 0 auto;
+            border-radius: 100%;
+            width: 3.5rem;
+            height: 3.5rem;
+            margin: 0 auto;
         }
     }
 
@@ -49,7 +98,7 @@
             background-color: @secondary-colour;
         }
 
-        &.is-completed {
+        &.is-complete {
             background-color: @primary-colour;
         }
     }
@@ -59,12 +108,15 @@
 
         animation-name: fadeIn;
         animation-duration: 1s;
+
+        //padding: 1rem;
     }
 
 
     .hide {
         display: none;
     }
+
 }
 
 

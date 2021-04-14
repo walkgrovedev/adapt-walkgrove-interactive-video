@@ -3,7 +3,14 @@
 
   <div class="interactive-video__main">
 
+     <div class="interactive-video__content">
+        <h2 class="interactive-video__content-title"></h2>
+        <div class="interactive-video__content-body component__body"></div>
+        <div class="interactive-video__content-instruction component__instruction"></div>
+     </div>
+
     <div class="interactive-video__stages">
+    <img class="interactive-video__bg-image is-hidden" src="" alt="" aria-hidden="true" />
     {{#each _items}}
         <div class="interactive-video__widget"></div>
     {{/each}}
@@ -15,7 +22,7 @@
       </button>
 
       <div class="interactive-video__progress-dots " >
-         {{#each _items}}
+         {{#each _stages}}
             <div class="interactive-video__progress-dot"></div>
         {{/each}}
       </div>
@@ -26,9 +33,5 @@
    </div>
 
   </div>
-
-  
-  
-  {{!-- {{#if body}} {{/if}} --}}
 
 </div>
