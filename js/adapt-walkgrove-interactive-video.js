@@ -1,3 +1,5 @@
+const { find } = require("underscore");
+
 define([
   'core/js/adapt',
   'core/js/views/componentView',
@@ -115,16 +117,7 @@ define([
             $("." + item._id).removeClass('u-visibility-hidden');
             $("." + item._id).removeClass('hide');
 
-            if(item._background === null) {
-              this.$('.interactive-video__bg-image').addClass("is-hidden");
-            } else {
-              this.$('.interactive-video__bg-image').removeClass("is-hidden");
-              this.$('.interactive-video__bg-image').attr("src", item._background);
-            }
-
-            this.$('.interactive-video__content-title').html(item.stepTitle);
-            this.$('.interactive-video__content-body').html(item.stepBody);
-            this.$('.interactive-video__content-instruction').html(item.stepInstruction);
+            this.setContent(item);
 
           } else {
             $("." + item._id).addClass('u-visibility-hidden');
@@ -136,7 +129,7 @@ define([
     },
 
     showPrevStage: function() {
-      if(this._stageIndex > 0) {
+      if(this._stageIndex > 1) {
         this._stageIndex--;
         this._stepIndex = this._stepIndex-2;
         this.model.get('_items').forEach((item, index) => {
@@ -144,12 +137,7 @@ define([
             $("." + item._id).removeClass('u-visibility-hidden');
             $("." + item._id).removeClass('hide');
 
-            if(item._background === null) {
-              this.$('.interactive-video__content-image').addClass("is-hidden");
-            } else {
-              this.$('.interactive-video__content-image').removeClass("is-hidden");
-              this.$('.interactive-video__content-image').attr("src", item._background);
-            }
+            this.setContent(item);
 
           } else {
             $("." + item._id).addClass('u-visibility-hidden');
@@ -160,36 +148,63 @@ define([
       }
     },
 
+    setContent:function(_item) {
+      if(_item._background === null) {
+        this.$('.interactive-video__bg-image').addClass("is-hidden");
+      } else {
+        this.$('.interactive-video__bg-image').removeClass("is-hidden");
+
+        this.$('.interactive-video__bg-img').attr("src", _item._background);
+      }
+
+      this.$('.interactive-video__widget').css({ height: '0px' });
+      var heightDiv = this.$('.interactive-video__bg-image').height();
+      this.$('.interactive-video__widget').eq(this._stepIndex).css({ height: Math.round(heightDiv) + 'px' });
+      _.delay(() => {
+        var heightDiv = this.$('.interactive-video__bg-image').height();
+        this.$('.interactive-video__widget').eq(this._stepIndex).css({ height: Math.round(heightDiv) + 'px' });
+      }, 1000);
+
+      this.$('.interactive-video__content-title').html(_item.stepTitle);
+      this.$('.interactive-video__content-body').html(_item.stepBody);
+      this.$('.interactive-video__content-instruction').html(_item.stepInstruction);
+
+    },
+
     updateProgress: function() {
 
+      //dots
       this.model.get('_items').forEach((item, index) => {
 
        var stageI = Math.round(index/2);
-       var activeIndex = (this._stageViewedIndex*2) - 2;
-       var completeIndex = (this._stageViewedIndex*2) - 1;
+       var activeIndex = (this._stageIndex*2) - 2;
+       var completeIndex = (this._stageIndex*2) - 1;
 
-       //console.log(activeIndex, completeIndex);
-       //console.log(index, activeIndex, '-', index, this._stepIndex);
+       //console.log("this._stepIndex: " + this._stepIndex + " - activeIndex: " + activeIndex + " - completeIndex: " + completeIndex);
 
-        if(index < completeIndex && index < this._stepIndex) {
-         // console.log("complete: " + index + " - " + stageI);
-          this.$('.interactive-video__progress-dot').eq(stageI).addClass('is-complete');
-        } else if(index === activeIndex && index === this._stepIndex) {
+        if(index === this._stepIndex && this._stepIndex === activeIndex) { 
           //console.log("active: " + index + " - " + stageI);
           this.$('.interactive-video__progress-dot').eq(stageI).addClass('is-active');
-        } else {
+        } else if(index <= this._stepIndex && this._stepIndex === completeIndex) { 
+         //console.log("complete: " + index + " - " + stageI);
+          this.$('.interactive-video__progress-dot').eq(stageI).addClass('is-complete');
+        } else if(index > this._stepIndex) {
           this.$('.interactive-video__progress-dot').eq(stageI).removeClass('is-complete');
           this.$('.interactive-video__progress-dot').eq(stageI).removeClass('is-active');
         }
+    
       });
 
-      if(this._stageViewedIndex < 1) {
+      //buttons
+      //console.log(this._stageIndex, this._stageViewedIndex, this._stepIndex, this._stepViewedIndex);
+
+      if(this._stageIndex < 2) {
         this.$('.js-prev-stage').prop('disabled', true);
       } else {
         this.$('.js-prev-stage').prop('disabled', false);
       }
 
-      if(this._stepIndex < this._stepViewedIndex) {
+      if(this._stepIndex < this._stepViewedIndex && this._stepIndex < this.model.get('_items').length) {
         this.$('.js-next-stage').prop('disabled', false);
       }else {
         this.$('.js-next-stage').prop('disabled', true);
