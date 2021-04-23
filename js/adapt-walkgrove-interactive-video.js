@@ -44,7 +44,6 @@ define([
       this.setReadyStatus();
 
       this.setUpSteps();
-      this.showNextStep();
     },
 
     _stageIndex: 1,
@@ -120,6 +119,9 @@ define([
         }
 
       });
+
+      this.showNextStep();
+
     },
 
     addStepModel: function (_index, _el) {
@@ -211,8 +213,8 @@ define([
       var videoList = document.getElementsByTagName("video");
       for( var i = 0; i < videoList.length; i++ ){ 
         videoList.item(i).pause();
-        videoList.item(i).currentTime = 1;
-    }
+        //videoList.item(i).currentTime = 0;
+      }
 
       if(_item._background === null) { // || Adapt.device.screenSize === 'small'
         this.$('.interactive-video__bg-image').addClass("is-hidden");
@@ -221,6 +223,7 @@ define([
         this.$('.interactive-video__bg-img').attr("src", _item._background);
       }
 
+      
       this.$('.interactive-video__widget').css({ height: '0px' });
 
       if(Adapt.device.screenSize === 'small') {
@@ -240,7 +243,7 @@ define([
           var heightDiv = this.$('.interactive-video__bg-image').height();
           this.$('.interactive-video__widget').eq(this._stepIndex).css({ height: Math.round(heightDiv) + 'px' });
           if(this._stepIndex > 0) {
-            Adapt.scrollTo('.' + _item._id, { duration: 500 });
+            Adapt.scrollTo('.' + this.model.get('_id'), { duration: 250 });
           }
         }, 1000);
 
