@@ -206,6 +206,14 @@ define([
     },
 
     setContent:function(_item) {
+
+      //pause any video playing
+      var videoList = document.getElementsByTagName("video");
+      for( var i = 0; i < videoList.length; i++ ){ 
+        videoList.item(i).pause();
+        videoList.item(i).currentTime = 1;
+    }
+
       if(_item._background === null) { // || Adapt.device.screenSize === 'small'
         this.$('.interactive-video__bg-image').addClass("is-hidden");
       } else {
@@ -231,6 +239,9 @@ define([
         _.delay(() => {
           var heightDiv = this.$('.interactive-video__bg-image').height();
           this.$('.interactive-video__widget').eq(this._stepIndex).css({ height: Math.round(heightDiv) + 'px' });
+          if(this._stepIndex > 0) {
+            Adapt.scrollTo('.' + _item._id, { duration: 500 });
+          }
         }, 1000);
 
       }
