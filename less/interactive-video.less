@@ -17,8 +17,12 @@
         width: 100%;
         height: auto;
 
-        padding: 1rem;
+        padding: 0rem 1rem;
         max-width: 90%;
+
+        h2 {
+            margin-block-start: 0rem!important;
+        }
     }
 
     &__bg-image {
@@ -55,6 +59,10 @@
 
         display: flex;
         flex-direction: column;
+
+        @media (max-width: 823px) {
+            width: 100%;
+        }
     }
 
     &__step-bg {
@@ -78,6 +86,14 @@
         height: 100%;
         display: flex;
         flex-direction: column;
+
+        @media (max-width: 823px) {
+            width: 100%;
+            flex-direction: row;
+            height: auto;
+            position: relative;
+        }
+
         justify-content: center;
 
         .btn {
@@ -86,6 +102,36 @@
             width: 3.5rem;
             height: 3.5rem;
             margin: 0 auto;
+
+            &.js-prev-stage {
+                .icon {
+                    .icon-controls-up;
+
+                    @media (max-width: 823px) {
+                        .icon-controls-left;
+                    }
+                }
+            }
+            
+            &.js-next-stage {
+                .icon {
+                    .icon-controls-down;
+
+                    @media (max-width: 823px) {
+                        .icon-controls-right;
+                    }
+                }
+            }
+
+            &:disabled {
+                background-color: @disabled;
+                color: @disabled-inverted;
+
+                &:hover {
+                    background-color: @disabled;
+                    color: @disabled-inverted;
+                }
+            }
         }
     }
 
@@ -95,6 +141,10 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+
+        @media (max-width: 823px) {
+            flex-direction: row;
+        }
     }
 
     &__progress-dot {

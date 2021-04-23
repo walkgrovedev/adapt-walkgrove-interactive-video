@@ -11,11 +11,33 @@ define([
 
     events: {
       'click .js-next-stage': 'showNextStep',
-      'click .js-prev-stage': 'showPrevStage'
+      'click .js-prev-stage': 'showPrevStep' //showPrevStage
     },
     
     preRender: function() {
+
+      this.listenTo(Adapt, {
+        'device:resize': this.onScreenSizeChanged,
+        'device:changed': this.onDeviceChanged
+      });
+
       this.checkIfResetOnRevisit();
+    },
+
+    onScreenSizeChanged: function() {
+      this.updateContent();
+    },
+
+    onDeviceChanged: function() {
+      this.updateContent();
+    },
+
+    updateContent: function(){
+      this.model.get('_items').forEach((item, index) => {
+        if(this._stepIndex === index) {
+          this.setContent(item);
+        }
+      });
     },
 
     postRender: function() {
@@ -30,6 +52,7 @@ define([
     _stageViewedIndex: 1,
     _stepViewedIndex: -1,
     _moveOnAuto: false,
+    _stepCompletedIndex: -1,
     
     checkIfResetOnRevisit: function() {
       var isResetOnRevisit = this.model.get('_isResetOnRevisit');
@@ -44,6 +67,7 @@ define([
 
       var MediaView = Adapt.getViewClass('media');
       var DragdropView = Adapt.getViewClass('dragdrop');
+      var MCQView = Adapt.getViewClass('basic-question');
 
       this.model.get('_items').forEach((item, index) => {
 
@@ -67,8 +91,18 @@ define([
             this.addStepModel(index, newComponent.$el);
             break;
 
-          case "mcq":
-            
+          case "basic-question":
+
+            newComponent = new MCQView({ model: model });
+          
+            this.model.listenTo(model,  'change', ()=> {
+              if(model.get('_isComplete') === true) {
+                console.log("basic-question completed");
+                this.allowNextStep();
+              }
+            });
+
+            this.addStepModel(index, newComponent.$el);
             break;
 
           case "dragdrop":
@@ -77,7 +111,7 @@ define([
             this.model.listenTo(model,  'change', ()=> {
               if(model.get('_isComplete') === true) {
                 console.log("dragdrop completed");
-                this.showNextStage();
+                this.allowNextStep();
               }
             });
 
@@ -93,16 +127,20 @@ define([
       $container.append(_el);  
     },
 
-    showNextStage: function() {
+    allowNextStep: function() {
       if(this._stageIndex < this.model.get('_stages').length) {
         this._stageIndex++;
         if(this._stageViewedIndex < this._stageIndex) {
           this._stageViewedIndex = this._stageIndex;
         }
+        if(this._stepCompletedIndex < this._stepViewedIndex) {
+          this._stepCompletedIndex = this._stepViewedIndex;
+        }
         this.enableNext();
       }
       if(this._stageIndex === this.model.get('_stages').length) {
         this._stageViewedIndex++;
+        this.setCompletionStatus();
       }
     },
 
@@ -148,23 +186,55 @@ define([
       }
     },
 
+    showPrevStep: function() {
+      if(this._stepIndex > 0) {
+        this._stepIndex--;
+        this.model.get('_items').forEach((item, index) => {
+          if(this._stepIndex === index) {
+            $("." + item._id).removeClass('u-visibility-hidden');
+            $("." + item._id).removeClass('hide');
+
+            this.setContent(item);
+
+          } else {
+            $("." + item._id).addClass('u-visibility-hidden');
+            $("." + item._id).addClass('hide');
+          }
+        });
+        this.updateProgress();
+      }
+    },
+
     setContent:function(_item) {
-      if(_item._background === null) {
+      if(_item._background === null) { // || Adapt.device.screenSize === 'small'
         this.$('.interactive-video__bg-image').addClass("is-hidden");
       } else {
         this.$('.interactive-video__bg-image').removeClass("is-hidden");
-
         this.$('.interactive-video__bg-img').attr("src", _item._background);
       }
 
       this.$('.interactive-video__widget').css({ height: '0px' });
-      var heightDiv = this.$('.interactive-video__bg-image').height();
-      this.$('.interactive-video__widget').eq(this._stepIndex).css({ height: Math.round(heightDiv) + 'px' });
-      _.delay(() => {
-        var heightDiv = this.$('.interactive-video__bg-image').height();
-        this.$('.interactive-video__widget').eq(this._stepIndex).css({ height: Math.round(heightDiv) + 'px' });
-      }, 1000);
 
+      if(Adapt.device.screenSize === 'small') {
+
+        this.$('.interactive-video__widget').eq(this._stepIndex).css({ height: 'auto' });
+        _.delay(() => {
+          this.$('.interactive-video__widget').eq(this._stepIndex).css({ height: 'auto' });
+          this.$('.interactive-video__bg-img').css({ opacity: 0 });
+        }, 1000);
+
+      } else {
+        
+        var heightDiv = this.$('.interactive-video__bg-image').height();
+      
+        this.$('.interactive-video__widget').eq(this._stepIndex).css({ height: Math.round(heightDiv) + 'px' });
+        _.delay(() => {
+          var heightDiv = this.$('.interactive-video__bg-image').height();
+          this.$('.interactive-video__widget').eq(this._stepIndex).css({ height: Math.round(heightDiv) + 'px' });
+        }, 1000);
+
+      }
+      
       this.$('.interactive-video__content-title').html(_item.stepTitle);
       this.$('.interactive-video__content-body').html(_item.stepBody);
       this.$('.interactive-video__content-instruction').html(_item.stepInstruction);
@@ -185,7 +255,7 @@ define([
         if(index === this._stepIndex && this._stepIndex === activeIndex) { 
           //console.log("active: " + index + " - " + stageI);
           this.$('.interactive-video__progress-dot').eq(stageI).addClass('is-active');
-        } else if(index <= this._stepIndex && this._stepIndex === completeIndex) { 
+        } else if(index <= this._stepViewedIndex && this._stepViewedIndex === completeIndex) { 
          //console.log("complete: " + index + " - " + stageI);
           this.$('.interactive-video__progress-dot').eq(stageI).addClass('is-complete');
         } else if(index > this._stepIndex) {
@@ -198,7 +268,7 @@ define([
       //buttons
       //console.log(this._stageIndex, this._stageViewedIndex, this._stepIndex, this._stepViewedIndex);
 
-      if(this._stageIndex < 2) {
+      if(this._stepIndex === 0) {
         this.$('.js-prev-stage').prop('disabled', true);
       } else {
         this.$('.js-prev-stage').prop('disabled', false);
@@ -208,6 +278,10 @@ define([
         this.$('.js-next-stage').prop('disabled', false);
       }else {
         this.$('.js-next-stage').prop('disabled', true);
+      }
+
+      if(this._stepIndex <= this._stepCompletedIndex) {
+        this.$('.js-next-stage').prop('disabled', false);
       }
 
     },
