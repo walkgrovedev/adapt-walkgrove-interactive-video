@@ -97,6 +97,10 @@ define([
             this.model.listenTo(model,  'change', ()=> {
               if(model.get('_isComplete') === true) {
                 console.log("basic-question completed");
+                var ins = model.get('instructionAfter');
+                if(ins){
+                  $('.interactive-video__content-instruction').html(ins);
+                }
                 this.allowNextStep();
               }
             });
@@ -140,9 +144,10 @@ define([
         }
         this.enableNext();
       }
-      if(this._stageIndex === this.model.get('_stages').length) {
-        this._stageViewedIndex++;
+      if(this._stepIndex === this.model.get('_items').length-1) {
+        //this._stageViewedIndex++;
         this.setCompletionStatus();
+        this._stepViewedIndex++;
       }
     },
 
@@ -251,7 +256,13 @@ define([
       
       this.$('.interactive-video__content-title').html(_item.stepTitle);
       this.$('.interactive-video__content-body').html(_item.stepBody);
-      this.$('.interactive-video__content-instruction').html(_item.stepInstruction);
+
+      console.log(this._stepIndex, this._stepViewedIndex, this.model.get('_items').length);
+      if(this._stepIndex < this._stepViewedIndex || (this._stepIndex > this._stepViewedIndex && this._stepIndex === (this.model.get('_items').length-1))) {
+       this.$('.interactive-video__content-instruction').html(_item.instructionAfter);
+      } else {
+        this.$('.interactive-video__content-instruction').html(_item.stepInstruction);
+      }
 
     },
 
