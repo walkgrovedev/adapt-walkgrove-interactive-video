@@ -1,3 +1,4 @@
+const { ModelBase } = require("backbone");
 const { find } = require("underscore");
 
 define([
@@ -11,7 +12,8 @@ define([
 
     events: {
       'click .js-next-stage': 'showNextStep',
-      'click .js-prev-stage': 'showPrevStep' //showPrevStage
+      'click .js-prev-stage': 'showPrevStep', //showPrevStage
+      'click .js-click-reset': 'resetInteraction',
     },
     
     preRender: function() {
@@ -44,6 +46,25 @@ define([
       this.setReadyStatus();
 
       this.setUpSteps();
+    },
+
+    resetInteraction: function() {
+      // this.model.reset(true, true);
+
+      this._stageIndex = 1;
+      this._stepIndex = -1;
+      this._stageViewedIndex = 1;
+      this._stepViewedIndex = -1;
+      this._stepCompletedIndex = -1;
+
+      //remove Models
+      this.model.get('_items').forEach((item, index) => {
+        $(".interactive-video__widget").eq(index).html("");
+      });
+
+      this.setUpSteps();
+
+      this.$('.js-click-reset').removeClass('is-visible');
     },
 
     _stageIndex: 1,
@@ -80,7 +101,12 @@ define([
             this.model.listenTo(model,  'change', ()=> {
               if(model.get('_isMediaEnded') === true) {
                 if(this._moveOnAuto === true) {
-                  this.showNextStep();
+                  var isIE11 = !!window.MSInputMethodContext && !!document.documentMode;
+                  if(isIE11) {
+                    this.enableNext();
+                  } else {
+                    this.showNextStep();
+                  }
                 }else {
                   this.enableNext();
                 }
@@ -147,6 +173,7 @@ define([
       if(this._stepIndex === this.model.get('_items').length-1) {
         //this._stageViewedIndex++;
         this.setCompletionStatus();
+        this.$('.js-click-reset').addClass('is-visible');
         this._stepViewedIndex++;
       }
     },
@@ -257,7 +284,7 @@ define([
       this.$('.interactive-video__content-title').html(_item.stepTitle);
       this.$('.interactive-video__content-body').html(_item.stepBody);
 
-      console.log(this._stepIndex, this._stepViewedIndex, this.model.get('_items').length);
+      //console.log(this._stepIndex, this._stepViewedIndex, this.model.get('_items').length);
       if(this._stepIndex < this._stepViewedIndex || (this._stepIndex > this._stepViewedIndex && this._stepIndex === (this.model.get('_items').length-1))) {
        this.$('.interactive-video__content-instruction').html(_item.instructionAfter);
       } else {
