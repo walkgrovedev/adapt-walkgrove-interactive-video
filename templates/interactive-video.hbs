@@ -4,36 +4,36 @@
   <div class="interactive-video__main">
 
      <div class="interactive-video__content">
-        <h2 class="interactive-video__content-title"></h2>
-        <div class="interactive-video__content-body component__body"></div>
-        <div class="interactive-video__content-instruction component__instruction"></div>
+        <h2 class="interactive-video__content-title" tabindex="0"></h2>
+        <div class="interactive-video__content-body component__body" tabindex="0"></div>
+        <div class="interactive-video__content-instruction component__instruction" tabindex="0"></div>
      </div>
 
     <div class="interactive-video__stages">
-    <div class="interactive-video__bg-image is-hidden">
-      <img class="interactive-video__bg-img" src="" alt="" aria-hidden="true" />
+    <div class="interactive-video__bg-image is-hidden" aria-hidden="true" tabindex="-1">
+      <img class="interactive-video__bg-img" src="" alt="" aria-hidden="true" tabindex="-1"/>
    </div>
     {{#each _items}}
         <div class="interactive-video__widget"></div>
     {{/each}}
     </div> 
     
-    <div class="interactive-video__controls " >
-      <button class="btn js-prev-stage">
+    <div class="interactive-video__controls">
+      <button class="btn js-prev-stage" aria-label="{{_globals._accessibility._ariaLabels.previous}}" tabindex="0">
          <span class="icon "></span>
       </button>
 
-      <div class="interactive-video__progress-dots " >
+      <div class="interactive-video__progress-dots " aria-hidden="true" tabindex="-1">
          {{#each _stages}}
-            <div class="interactive-video__progress-dot"></div>
+            <div class="interactive-video__progress-dot" aria-hidden="true"></div>
         {{/each}}
       </div>
 
-      <button class="btn js-next-stage">
+      <button class="btn js-next-stage" aria-label="{{_globals._accessibility._ariaLabels.next}}" tabindex="0">
          <span class="icon "></span>
       </button>
 
-      <button class="btn js-click-reset">
+      <button class="btn js-click-reset" aria-label="{{_globals._accessibility._ariaLabels.reset}}" tabindex="0">
          <span class="icon "></span>
       </button>
    </div>
